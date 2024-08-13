@@ -1,0 +1,16 @@
+{
+  "name": "repo-github-webhook-listener",
+  "version": "1.0.0",
+  "license": "ISC",
+  "author": "Artur Schincariol Rossi",
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=.env --watch src/server.js",
+    "start": "node --env-file=.env src/server.js"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^9.1.0",
+    "fastify": "^4.28.0",
+    "zod": "^3.23.8"
+  }
+}
