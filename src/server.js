@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import fastifyRateLimit from "@fastify/rate-limit";
 import { exec } from "node:child_process";
+import crypto from "node:crypto";
 import { z } from "zod";
 
 import { errorHandler } from "./error-handler.js";
@@ -39,11 +40,21 @@ app.post("/hook/:env_repo_array_index", async (request, reply) => {
     return reply.status(500).send({ message: "No Env File" });
 
   /* Authentication Headers */
-  const authorization = request.headers["authorization"];
+  const authorization = request.headers["x-hub-signature-256"];
   if (!authorization)
     return reply.status(401).send({ message: "Not Authorized" });
-  if (authorization !== githubWebhookSecret)
+  try {
+    const sig = Buffer.from(authorization, "utf8");
+    const hmac = crypto.createHmac("sha256", githubWebhookSecret);
+    const digest = Buffer.from(
+      "sha256" + "=" + hmac.update(JSON.stringify(request.body)).digest("hex"),
+      "utf8"
+    );
+    if (sig.length !== digest.length || !crypto.timingSafeEqual(digest, sig))
+      return reply.status(403).send({ message: "Not Authorized" });
+  } catch (err) {
     return reply.status(403).send({ message: "Not Authorized" });
+  }
 
   const { env_repo_array_index } = hookParams.parse(request.params);
   const paths = stringifiedPaths.split(",");

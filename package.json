@@ -1,5 +1,5 @@
 {
-  "name": "repo-github-webhook-listener",
+  "name": "githook",
   "version": "1.0.0",
   "license": "ISC",
   "author": "Artur Schincariol Rossi",
